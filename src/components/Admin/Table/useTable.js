@@ -1,0 +1,89 @@
+import { useState } from "react";
+
+const useTable = (rows) => {
+    const [order, setOrder] = useState('asc');
+    const [orderBy, setOrderBy] = useState('calories');
+    const [selected, setSelected] = useState([]);
+    const [page, setPage] = useState(0);
+    const [dense, setDense] = useState(false);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+
+    // SORTING BASE ON A COLUMN
+    const handleRequestSort = (event, property) => {
+        const isAsc = orderBy === property && order === 'asc';
+        setOrder(isAsc ? 'desc' : 'asc');
+        setOrderBy(property);
+    };
+
+    // SELECT ALL ROWS
+    const handleSelectAllClick = (event, rows) => {
+        if (event.target.checked) {
+            const newSelecteds = rows.map((n) => {
+                return n.id
+            });
+            setSelected(newSelecteds);
+            return;
+        }
+        setSelected([]);
+    };
+
+    // SELECT A ROW
+    const handleClick = (event, name) => {
+        const selectedIndex = selected.indexOf(name);
+        let newSelected = [];
+
+        if (selectedIndex === -1) {
+            newSelected = newSelected.concat(selected, name);
+        } else if (selectedIndex === 0) {
+            newSelected = newSelected.concat(selected.slice(1));
+        } else if (selectedIndex === selected.length - 1) {
+            newSelected = newSelected.concat(selected.slice(0, -1));
+        } else if (selectedIndex > 0) {
+            newSelected = newSelected.concat(
+                selected.slice(0, selectedIndex),
+                selected.slice(selectedIndex + 1),
+            );
+        }
+        setSelected(newSelected);
+    };
+
+    // PAGINATION CHANGE
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+    };
+
+    // NUMBER OF ROWS PER PAGE
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+    };
+
+    // DENSE MODE
+    const handleChangeDense = (event) => {
+        setDense(event.target.checked);
+    };
+
+    const isSelected = (name) => selected.indexOf(name) !== -1;
+
+    const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+
+    return {
+        order,
+        orderBy,
+        selected,
+        setSelected,
+        page,
+        dense,
+        rowsPerPage,
+        handleRequestSort,
+        handleSelectAllClick,
+        handleClick,
+        handleChangePage,
+        handleChangeRowsPerPage,
+        handleChangeDense,
+        isSelected,
+        emptyRows
+    }
+}
+
+export default useTable
